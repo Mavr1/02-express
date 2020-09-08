@@ -3,6 +3,7 @@ require('dotenv').config({ path: path.join(process.cwd(), '.env') });
 
 const express = require('express');
 const cors = require('cors');
+const morgan = require('morgan');
 
 const { contactsRouter } = require('./contacts/contacts.router');
 
@@ -10,20 +11,21 @@ module.exports.CRUDServer = {
   app: null,
 
   initServer() {
-    app = express();
+    this.app = express();
   },
 
   initMiddlewares() {
-    app.use(express.json());
-    app.use(cors({ origin: process.env.ALLOWED_ORIGIN }));
+    this.app.use(express.json());
+    this.app.use(cors({ origin: process.env.ALLOWED_ORIGIN }));
+    this.app.use(morgan('tiny'));
   },
 
   initRoutes() {
-    app.use('/contacts', contactsRouter);
+    this.app.use('/contacts', contactsRouter);
   },
 
   initErrorHandling() {
-    app.use((err, req, res, next) => {
+    this.app.use((err, req, res, next) => {
       const status = err.status || 500;
 
       return res.status(status).send(err.message);
@@ -31,7 +33,7 @@ module.exports.CRUDServer = {
   },
 
   startListening() {
-    app.listen(process.env.PORT, () => {
+    this.app.listen(process.env.PORT, () => {
       console.log('Started listening on port', process.env.PORT);
     });
   },
