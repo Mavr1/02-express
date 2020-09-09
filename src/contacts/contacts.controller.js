@@ -2,8 +2,9 @@ const { contactsModel } = require('./contacts.model');
 
 exports.getContacts = async (req, res, next) => {
   const contacts = await contactsModel.listContacts();
+  const parsedContacts = JSON.parse(contacts);
 
-  res.status(200).send(contacts);
+  res.status(200).json(parsedContacts);
 };
 
 exports.getContact = async (req, res, next) => {
@@ -11,16 +12,16 @@ exports.getContact = async (req, res, next) => {
 
   const contact = await contactsModel.findContactById(contactId);
   if (!contact) {
-    return res.status(404).send('Contact not found');
+    return res.status(404).json({ message: 'Contact not found' });
   }
 
-  res.status(200).send(contact);
+  res.status(200).json(contact);
 };
 
 exports.addContact = async (req, res, next) => {
   const newContact = await contactsModel.addContact(req.body);
 
-  res.status(201).send(newContact);
+  res.status(201).json(newContact);
 };
 
 exports.removeContact = async (req, res, next) => {
@@ -28,12 +29,12 @@ exports.removeContact = async (req, res, next) => {
 
   const contact = await contactsModel.findContactById(contactId);
   if (!contact) {
-    res.status(404).send('Contact not found');
+    res.status(404).json({ message: 'Contact not found' });
   }
 
   contactsModel.removeContact(contactId);
 
-  res.status(200).send('Contact deleted');
+  res.status(200).json({ message: 'Contact deleted' });
 };
 
 exports.updateContact = async (req, res, next) => {
@@ -41,10 +42,10 @@ exports.updateContact = async (req, res, next) => {
 
   const contact = await contactsModel.findContactById(contactId);
   if (!contact) {
-    return res.status(404).send('Contact not found');
+    return res.status(404).json({ message: 'Not found' });
   }
 
   const updatedContact = await contactsModel.updateContact(contactId, req.body);
 
-  res.status(200).send(updatedContact);
+  res.status(200).json(updatedContact);
 };

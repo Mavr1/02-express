@@ -28,13 +28,13 @@ module.exports.CRUDServer = {
     this.app.use((err, req, res, next) => {
       const status = err.status || 500;
 
-      return res.status(status).send(err.message);
+      return res.status(status).json({ message: err.message });
     });
   },
 
-  startListening() {
-    this.app.listen(process.env.PORT, () => {
-      console.log('Started listening on port', process.env.PORT);
+  startListening(defaultPort) {
+    this.app.listen(process.env.PORT || defaultPort, () => {
+      console.log('Started listening on port', process.env.PORT || defaultPort);
     });
   },
 
@@ -43,6 +43,6 @@ module.exports.CRUDServer = {
     this.initMiddlewares();
     this.initRoutes();
     this.initErrorHandling();
-    this.startListening();
+    this.startListening(3000);
   },
 };
