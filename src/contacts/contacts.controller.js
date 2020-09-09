@@ -1,51 +1,75 @@
 const { contactsModel } = require('./contacts.model');
 
 exports.getContacts = async (req, res, next) => {
-  const contacts = await contactsModel.listContacts();
-  const parsedContacts = JSON.parse(contacts);
+  try {
+    const contacts = await contactsModel.listContacts();
+    const parsedContacts = JSON.parse(contacts);
 
-  res.status(200).json(parsedContacts);
+    res.status(200).json(parsedContacts);
+  } catch (error) {
+    res.status(500).json({ message: error });
+    console.log('error :>> ', error);
+  }
 };
 
 exports.getContact = async (req, res, next) => {
   const { contactId } = req.params;
+  try {
+    const contact = await contactsModel.findContactById(contactId);
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
 
-  const contact = await contactsModel.findContactById(contactId);
-  if (!contact) {
-    return res.status(404).json({ message: 'Contact not found' });
+    res.status(200).json(contact);
+  } catch (error) {
+    res.status(500).json({ message: error });
+    console.log('error :>> ', error);
   }
-
-  res.status(200).json(contact);
 };
 
 exports.addContact = async (req, res, next) => {
-  const newContact = await contactsModel.addContact(req.body);
-
-  res.status(201).json(newContact);
+  try {
+    const newContact = await contactsModel.addContact(req.body);
+    res.status(201).json(newContact);
+  } catch (error) {
+    res.status(500).json({ message: error });
+    console.log('error :>> ', error);
+  }
 };
 
 exports.removeContact = async (req, res, next) => {
   const { contactId } = req.params;
+  try {
+    const contact = await contactsModel.findContactById(contactId);
+    if (!contact) {
+      res.status(404).json({ message: 'Contact not found' });
+    }
 
-  const contact = await contactsModel.findContactById(contactId);
-  if (!contact) {
-    res.status(404).json({ message: 'Contact not found' });
+    contactsModel.removeContact(contactId);
+
+    res.status(200).json({ message: 'Contact deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error });
+    console.log('error :>> ', error);
   }
-
-  contactsModel.removeContact(contactId);
-
-  res.status(200).json({ message: 'Contact deleted' });
 };
 
 exports.updateContact = async (req, res, next) => {
   const { contactId } = req.params;
+  try {
+    const contact = await contactsModel.findContactById(contactId);
+    if (!contact) {
+      res.status(404).json({ message: 'Contact not found' });
+    }
 
-  const contact = await contactsModel.findContactById(contactId);
-  if (!contact) {
-    return res.status(404).json({ message: 'Not found' });
+    const updatedContact = await contactsModel.updateContact(
+      contactId,
+      req.body
+    );
+
+    res.status(200).json(updatedContact);
+  } catch (error) {
+    res.status(500).json({ message: error });
+    console.log('error :>> ', error);
   }
-
-  const updatedContact = await contactsModel.updateContact(contactId, req.body);
-
-  res.status(200).json(updatedContact);
 };
