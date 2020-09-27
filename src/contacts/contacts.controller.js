@@ -7,7 +7,7 @@ exports.getContacts = async (req, res, next) => {
 
     res.status(200).json(parsedContacts);
   } catch (error) {
-    next({ message: error });
+    next(error);
   }
 };
 
@@ -23,7 +23,7 @@ exports.getContact = async (req, res, next) => {
 
     res.status(200).json(contact);
   } catch (error) {
-    next({ message: error });
+    next(error);
   }
 };
 
@@ -32,7 +32,7 @@ exports.addContact = async (req, res, next) => {
     const newContact = await contactsModel.addContact(req.body);
     res.status(201).json(newContact);
   } catch (error) {
-    next({ message: error });
+    next(error);
   }
 };
 
@@ -50,7 +50,7 @@ exports.removeContact = async (req, res, next) => {
 
     res.status(200).json({ message: 'Contact deleted' });
   } catch (error) {
-    next({ message: error });
+    next(error);
   }
 };
 
@@ -71,6 +71,6 @@ exports.updateContact = async (req, res, next) => {
 
     res.status(200).json(updatedContact);
   } catch (error) {
-    next({ message: error });
+    next(error);
   }
 };
