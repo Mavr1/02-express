@@ -1,12 +1,13 @@
 const { contactsModel } = require('./contacts.model');
+const promiseHandler = require('../helpers/helpers');
 
 exports.getContacts = async (req, res, next) => {
-  try {
-    const contacts = await contactsModel.listContacts();
-    const parsedContacts = JSON.parse(contacts);
+  const [error, contacts] = await promiseHandler(contactsModel.listContacts());
+  const parsedContacts = JSON.parse(contacts);
 
-    res.status(200).json(parsedContacts);
-  } catch (error) {
+  res.status(200).json(parsedContacts);
+
+  if (error) {
     next(error);
   }
 };
@@ -14,42 +15,47 @@ exports.getContacts = async (req, res, next) => {
 exports.getContact = async (req, res, next) => {
   const { contactId } = req.params;
 
-  try {
-    const contact = await contactsModel.findContactById(contactId);
-    if (!contact) {
-      res.status(404).json({ message: 'Contact not found' });
-      return;
-    }
+  const [error, contact] = await promiseHandler(
+    contactsModel.findContactById(contactId)
+  );
+  if (!contact) {
+    res.status(404).json({ message: 'Contact not found' });
+    return;
+  }
+  res.status(200).json(contact);
 
-    res.status(200).json(contact);
-  } catch (error) {
+  if (error) {
     next(error);
   }
 };
 
 exports.addContact = async (req, res, next) => {
-  try {
-    const newContact = await contactsModel.addContact(req.body);
-    res.status(201).json(newContact);
-  } catch (error) {
+  const [error, newContact] = await promiseHandler(
+    contactsModel.addContact(req.body)
+  );
+  res.status(201).json(newContact);
+
+  if (error) {
     next(error);
   }
 };
 
 exports.removeContact = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
+  const { contactId } = req.params;
 
-    const contact = await contactsModel.findContactById(contactId);
-    if (!contact) {
-      res.status(404).json({ message: 'Contact not found' });
-      return;
-    }
+  const [error, contact] = await promiseHandler(
+    contactsModel.findContactById(contactId)
+  );
+  if (!contact) {
+    res.status(404).json({ message: 'Contact not found' });
+    return;
+  }
 
-    contactsModel.removeContact(contactId);
+  contactsModel.removeContact(contactId);
 
-    res.status(200).json({ message: 'Contact deleted' });
-  } catch (error) {
+  res.status(200).json({ message: 'Contact deleted' });
+
+  if (error) {
     next(error);
   }
 };
@@ -57,20 +63,21 @@ exports.removeContact = async (req, res, next) => {
 exports.updateContact = async (req, res, next) => {
   const { contactId } = req.params;
 
-  try {
-    const contact = await contactsModel.findContactById(contactId);
-    if (!contact) {
-      res.status(404).json({ message: 'Contact not found' });
-      return;
-    }
+  const [errorContact, contact] = await promiseHandler(
+    contactsModel.findContactById(contactId)
+  );
+  if (!contact) {
+    res.status(404).json({ message: 'Contact not found' });
+    return;
+  }
 
-    const updatedContact = await contactsModel.updateContact(
-      contactId,
-      req.body
-    );
+  const [errorUpdate, updatedContact] = await promiseHandler(
+    contactsModel.updateContact(contactId, req.body)
+  );
 
-    res.status(200).json(updatedContact);
-  } catch (error) {
-    next(error);
+  res.status(200).json(updatedContact);
+
+  if (errorContact || errorUpdate) {
+    next(errorContact || errorUpdate);
   }
 };
